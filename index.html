@@ -37,9 +37,11 @@
       align-items: center;
       padding: 16px;
       background-image: 
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.022) 0px, rgba(255, 255, 255, 0.022) 1px, transparent 1px, transparent 4px),
         radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.12) 0%, transparent 45%),
         radial-gradient(circle at 85% 85%, rgba(243, 85, 218, 0.1) 0%, transparent 45%);
       background-attachment: fixed;
+      animation: bgPan 14s ease-in-out infinite alternate;
     }
 
     .container {
@@ -54,6 +56,7 @@
       box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 242, 254, 0.05);
       position: relative;
       overflow: hidden;
+      animation: containerEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
     .container::before {
@@ -146,13 +149,15 @@
       background: rgba(255, 255, 255, 0.06);
       border-radius: 4px;
       margin-bottom: 18px;
-      overflow: hidden;
+      overflow: visible;
     }
     .progress-bar {
       height: 100%;
       width: 2%;
       background: linear-gradient(90deg, var(--secondary), var(--primary));
-      transition: width 0.25s ease;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+      position: relative;
     }
     .q-meta {
       display: flex;
@@ -197,14 +202,17 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      position: relative;
+      overflow: hidden;
     }
     .option-btn:hover {
       background: var(--opt-hover);
       border-color: var(--opt-hover-border);
-      transform: translateX(3px);
+      transform: translateY(-2px);
     }
     .option-btn:active {
       background: rgba(0, 242, 254, 0.22);
+      transform: translateY(1px);
     }
     .opt-tag {
       width: 24px;
@@ -218,6 +226,7 @@
       font-size: 11px;
       border-radius: 6px;
       flex-shrink: 0;
+      transition: transform 0.2s ease;
     }
     .nav-actions {
       display: flex;
@@ -482,6 +491,128 @@
       .tags-grid {
         grid-template-columns: 1fr;
       }
+    }
+
+    /* ===== 追加：8 组纯 CSS 交互动画（不改 HTML 结构 / class / JS） ===== */
+
+    /* 1. 背景纹理缓慢平移 14s ease-in-out infinite alternate，0 0 -> 6px 6px */
+    @keyframes bgPan {
+      from { background-position: 0 0; }
+      to { background-position: 6px 6px; }
+    }
+
+    /* 2. 主卡片容器入场 */
+    @keyframes containerEnter {
+      from { opacity: 0; transform: scale(0.96) translateY(12px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* 3. 当前屏 .active 下直接子元素依次入场 0.45s ease */
+    .screen.active > * {
+      animation: screenChildEnter 0.45s ease both;
+    }
+    .screen.active > *:nth-child(1) { animation-delay: 0.05s; }
+    .screen.active > *:nth-child(2) { animation-delay: 0.12s; }
+    .screen.active > *:nth-child(3) { animation-delay: 0.20s; }
+    .screen.active > *:nth-child(4) { animation-delay: 0.28s; }
+    .screen.active > *:nth-child(n+5) { animation-delay: 0.28s; }
+    @keyframes screenChildEnter {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 4. 进度条末端白色竖光标，呼吸闪烁 1.2s ease-in-out infinite alternate */
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      width: 2px;
+      height: 12px;
+      transform: translateY(-50%);
+      background: #ffffff;
+      border-radius: 1px;
+      animation: caretBlink 1.2s ease-in-out infinite alternate;
+    }
+    @keyframes caretBlink {
+      from { opacity: 0.3; }
+      to { opacity: 1; }
+    }
+
+    /* 5. 选项按钮 hover：深色遮罩自左滑入 0.32s，文字压在遮罩之上 */
+    .option-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.28);
+      transform: translateX(-100%);
+      transition: transform 0.32s ease;
+      pointer-events: none;
+    }
+    .option-btn:hover::before {
+      transform: translateX(0);
+    }
+    .option-btn > span {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 6. 选项字母标签 hover 旋转 -7deg */
+    .option-btn:hover .opt-tag {
+      transform: rotate(-7deg);
+    }
+
+    /* 7. 环形图分片顺时针依次绘制：conic-gradient 遮罩 + @property 角度变量；
+          from 0deg 即正上方、顺时针，与 JS 中 currentAngle = -0.5*PI 起始方向一致；
+          3 片共 0.66s（每片 220ms）linear，整体延迟 0.05s */
+    @property --pie-a {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+    canvas#pieChart {
+      --pie-a: 0deg;
+      -webkit-mask-image: conic-gradient(from 0deg, #000 0 var(--pie-a), transparent var(--pie-a) 360deg);
+      mask-image: conic-gradient(from 0deg, #000 0 var(--pie-a), transparent var(--pie-a) 360deg);
+      animation: pieReveal 0.66s linear 0.05s forwards;
+    }
+    @keyframes pieReveal {
+      0% { --pie-a: 0deg; }
+      33.333% { --pie-a: 120deg; }
+      66.667% { --pie-a: 240deg; }
+      100% { --pie-a: 360deg; }
+    }
+
+    /* 8. 结果页图例行 / 标签格 / 卡片：逐个淡入并左移 6px，0.4s ease */
+    #screen-result .dna-row,
+    #screen-result .tag-item,
+    #screen-result .companion-chip {
+      animation: resultItemIn 0.4s ease both;
+    }
+    #screen-result .dna-row:nth-child(1),
+    #screen-result .tag-item:nth-child(1),
+    #screen-result .companion-chip:nth-child(1) { animation-delay: 0s; }
+    #screen-result .dna-row:nth-child(2),
+    #screen-result .tag-item:nth-child(2),
+    #screen-result .companion-chip:nth-child(2) { animation-delay: 0.12s; }
+    #screen-result .dna-row:nth-child(3),
+    #screen-result .tag-item:nth-child(3),
+    #screen-result .companion-chip:nth-child(3) { animation-delay: 0.24s; }
+    #screen-result .dna-row:nth-child(4),
+    #screen-result .tag-item:nth-child(4),
+    #screen-result .companion-chip:nth-child(4) { animation-delay: 0.36s; }
+    #screen-result .dna-row:nth-child(5),
+    #screen-result .tag-item:nth-child(5),
+    #screen-result .companion-chip:nth-child(5) { animation-delay: 0.48s; }
+    #screen-result .dna-row:nth-child(6),
+    #screen-result .tag-item:nth-child(6),
+    #screen-result .companion-chip:nth-child(6) { animation-delay: 0.60s; }
+    #screen-result .dna-row:nth-child(n+7),
+    #screen-result .tag-item:nth-child(n+7),
+    #screen-result .companion-chip:nth-child(n+7) { animation-delay: 0.60s; }
+    @keyframes resultItemIn {
+      from { opacity: 0; transform: translateX(-6px); }
+      to { opacity: 1; transform: translateX(0); }
     }
   </style>
 </head>
