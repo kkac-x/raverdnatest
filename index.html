@@ -6,18 +6,26 @@
   <title>电子音乐偏好测试</title>
   <style>
     :root {
-      --bg: #090c10;
-      --card-bg: rgba(18, 22, 30, 0.88);
-      --card-border: rgba(0, 242, 254, 0.15);
-      --primary: #00f2fe;
-      --secondary: #4facfe;
-      --accent: #f355da;
-      --text: #f0f6fc;
-      --text-dim: #8b949e;
-      --opt-bg: rgba(255, 255, 255, 0.03);
-      --opt-border: rgba(255, 255, 255, 0.08);
-      --opt-hover: rgba(0, 242, 254, 0.12);
-      --opt-hover-border: rgba(0, 242, 254, 0.5);
+      /* 粗野主义 Brutalism：横纹灰底 / 近白卡片 / 深灰描边与色块（不用死黑） / 全直角 */
+      --bg: #e7e7e4;
+      --card-bg: #f5f5f4;
+      --card-border: #3f3f3d;
+      --primary: #3f3f3d;
+      --secondary: #3f3f3d;
+      --accent: #3f3f3d;
+      --text: #2b2b29;
+      --text-dim: #7d7d77;
+      --opt-bg: #f7f7f5;
+      --opt-border: #3f3f3d;
+      --opt-hover: #3f3f3d;
+      --opt-hover-border: #3f3f3d;
+
+      --ink: #3f3f3d;       /* 深灰，替代纯黑 */
+      --ink-deep: #2e2e2c;  /* 更深一档：按压、深色卡描边 */
+      --paper: #f5f5f4;
+      --paper-2: #dcdcd9;  /* 浅灰面板 */
+      --track: #cfcfcb;
+      --mono: "SF Mono", "JetBrains Mono", "Cascadia Mono", Consolas, "Courier New", monospace;
     }
 
     * {
@@ -28,57 +36,81 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    ::selection {
+      background: var(--ink);
+      color: var(--paper);
+    }
+
     body {
       background-color: var(--bg);
+      /* 细密水平横纹纹理 */
+      background-image: repeating-linear-gradient(
+        0deg,
+        rgba(43, 43, 41, 0.055) 0px,
+        rgba(43, 43, 41, 0.055) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+      background-attachment: fixed;
       color: var(--text);
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 16px;
-      background-image: 
-        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.022) 0px, rgba(255, 255, 255, 0.022) 1px, transparent 1px, transparent 4px),
-        radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.12) 0%, transparent 45%),
-        radial-gradient(circle at 85% 85%, rgba(243, 85, 218, 0.1) 0%, transparent 45%);
-      background-attachment: fixed;
-      animation: bgPan 14s ease-in-out infinite alternate;
+      /* 1. 背景纹理：14s 缓慢往复平移 6px */
+      animation: bgDrift 14s ease-in-out infinite alternate;
+    }
+    @keyframes bgDrift {
+      from { background-position: 0 0; }
+      to   { background-position: 6px 6px; }
     }
 
     .container {
       width: 100%;
       max-width: 620px;
       background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
+      border: 3px solid var(--ink);
+      border-radius: 0;
       padding: 30px 24px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 242, 254, 0.05);
+      box-shadow: 7px 7px 0 rgba(46, 46, 44, 0.2);
       position: relative;
       overflow: hidden;
-      animation: containerEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+      /* 2. 容器入场：0.6s，初始 0.96 缩放 + 下移 12px */
+      animation: containerIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    @keyframes containerIn {
+      from { opacity: 0; transform: scale(0.96) translateY(12px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
     }
 
     .container::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--primary), var(--accent), transparent);
+      content: none;
     }
 
     .screen {
       display: none;
-      animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: fadeIn 0.22s ease-out forwards;
     }
     .screen.active {
       display: block;
     }
+    /* 3. 页面子元素依次入场：0.45s，初始下移 8px 淡入 */
+    .screen.active > * {
+      animation: childIn 0.45s ease both;
+    }
+    .screen.active > *:nth-child(1) { animation-delay: 0.05s; }
+    .screen.active > *:nth-child(2) { animation-delay: 0.12s; }
+    .screen.active > *:nth-child(3) { animation-delay: 0.20s; }
+    .screen.active > *:nth-child(4),
+    .screen.active > *:nth-child(n+5) { animation-delay: 0.28s; }
+    @keyframes childIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
@@ -87,77 +119,114 @@
       text-align: center;
       margin-bottom: 24px;
     }
+    .welcome-header::after {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 2px;
+      background: var(--ink);
+      margin: 16px 0 0;
+    }
     .badge {
       display: inline-block;
-      padding: 4px 14px;
-      border-radius: 100px;
+      padding: 5px 12px;
+      border-radius: 0;
+      font-family: var(--mono);
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 1.5px;
-      color: var(--primary);
-      background: rgba(0, 242, 254, 0.08);
-      border: 1px solid rgba(0, 242, 254, 0.25);
+      letter-spacing: 2px;
+      color: var(--paper);
+      background: var(--ink);
+      border: 2px solid var(--ink);
       margin-bottom: 14px;
       text-transform: uppercase;
     }
     h1 {
-      font-size: 24px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #ffffff 40%, var(--primary) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: 1px;
       margin-bottom: 10px;
     }
     .intro-desc {
-      color: var(--text-dim);
+      color: #4a4a46;
       font-size: 13.5px;
-      line-height: 1.6;
+      line-height: 1.7;
       margin-bottom: 24px;
-      background: rgba(255, 255, 255, 0.02);
-      padding: 16px;
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: var(--paper-2);
+      padding: 16px 18px;
+      border-radius: 0;
+      border: 2px solid var(--ink);
     }
     .meta-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
+      gap: 12px;
       margin-bottom: 26px;
     }
     .meta-item {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      border-radius: 12px;
-      padding: 12px;
+      background: var(--opt-bg);
+      border: 2px solid var(--ink);
+      border-radius: 0;
+      padding: 14px 12px;
       text-align: center;
     }
+    .meta-item:nth-child(odd) {
+      background: var(--ink);
+      border-color: var(--ink);
+    }
     .meta-title {
-      font-size: 11px;
+      font-family: var(--mono);
+      font-size: 10.5px;
       color: var(--text-dim);
-      margin-bottom: 4px;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    .meta-item:nth-child(odd) .meta-title {
+      color: rgba(245, 245, 244, 0.62);
     }
     .meta-val {
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text);
+    }
+    .meta-item:nth-child(odd) .meta-val {
+      color: var(--paper);
     }
 
     /* 答题屏 */
     .progress-bar-wrap {
       width: 100%;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 4px;
+      height: 10px;
+      background: var(--track);
+      border: 2px solid var(--ink);
+      border-radius: 0;
       margin-bottom: 18px;
-      overflow: visible;
+      overflow: hidden;
     }
     .progress-bar {
+      position: relative;
       height: 100%;
       width: 2%;
-      background: linear-gradient(90deg, var(--secondary), var(--primary));
-      border-radius: 4px;
+      background: var(--ink);
+      /* 4. 宽度变化 0.3s 过渡 */
       transition: width 0.3s ease;
-      position: relative;
+    }
+    /* 4. 末端白色光标，1.2s 呼吸闪烁 */
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 3px;
+      background: #ffffff;
+      animation: barCursor 1.2s ease-in-out infinite alternate;
+    }
+    @keyframes barCursor {
+      from { opacity: 0.3; }
+      to   { opacity: 1; }
     }
     .q-meta {
       display: flex;
@@ -166,20 +235,22 @@
       margin-bottom: 16px;
     }
     .q-index-pill {
+      font-family: var(--mono);
       font-size: 12px;
       font-weight: 700;
-      color: var(--primary);
-      background: rgba(0, 242, 254, 0.08);
-      padding: 2px 10px;
-      border-radius: 6px;
-      border: 1px solid rgba(0, 242, 254, 0.2);
+      letter-spacing: 1px;
+      color: var(--paper);
+      background: var(--ink);
+      padding: 3px 10px;
+      border-radius: 0;
+      border: 2px solid var(--ink);
     }
     .q-title {
-      font-size: 17px;
-      font-weight: 700;
+      font-size: 18px;
+      font-weight: 800;
       line-height: 1.5;
       margin-bottom: 22px;
-      color: #ffffff;
+      color: var(--text);
       min-height: 50px;
     }
     .options-list {
@@ -190,28 +261,55 @@
     }
     .option-btn {
       background: var(--opt-bg);
-      border: 1px solid var(--opt-border);
-      border-radius: 14px;
-      padding: 13px 16px;
+      border: 2px solid var(--ink);
+      border-radius: 0;
+      padding: 13px 15px;
       text-align: left;
       font-size: 14px;
       line-height: 1.4;
-      color: #e6edf3;
+      color: var(--text);
       cursor: pointer;
-      transition: all 0.18s ease;
+      position: relative;
+      overflow: hidden;
+      /* 5. 选项按钮：0.18s 过渡 */
+      transition: color 0.18s ease, transform 0.18s ease;
       display: flex;
       align-items: center;
       gap: 12px;
+    }
+    /* 5. hover 时内部深色遮罩从左滑入，0.32s */
+    .option-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      background: var(--ink);
+      transform: translateX(-100%);
+      transition: transform 0.32s ease;
+      z-index: 0;
+    }
+    .option-btn > span {
       position: relative;
-      overflow: hidden;
+      z-index: 1;
     }
     .option-btn:hover {
-      background: var(--opt-hover);
-      border-color: var(--opt-hover-border);
+      color: var(--paper);
       transform: translateY(-2px);
     }
+    .option-btn:hover::before {
+      transform: translateX(0);
+    }
+    .option-btn:hover .opt-tag {
+      background: var(--paper);
+      color: var(--ink);
+      border-color: var(--paper);
+      /* 6. 字母标签 hover 旋转 -7 度，0.2s */
+      transform: rotate(-7deg);
+    }
     .option-btn:active {
-      background: rgba(0, 242, 254, 0.22);
+      /* 5. 点击下沉 1px */
       transform: translateY(1px);
     }
     .opt-tag {
@@ -220,13 +318,16 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--primary);
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--mono);
       font-weight: 700;
       font-size: 11px;
-      border-radius: 6px;
+      border: 2px solid var(--ink);
+      border-radius: 0;
       flex-shrink: 0;
-      transition: transform 0.2s ease;
+      /* 6. 字母标签旋转过渡 0.2s */
+      transition: transform 0.2s ease, background 0.18s ease, color 0.18s ease;
     }
     .nav-actions {
       display: flex;
@@ -236,36 +337,43 @@
 
     /* 按钮样式 */
     .btn {
-      background: linear-gradient(135deg, var(--secondary), var(--primary));
-      color: #090c10;
-      font-weight: 700;
+      background: var(--ink);
+      color: var(--paper);
+      font-weight: 800;
       font-size: 14.5px;
-      border: none;
-      border-radius: 12px;
-      padding: 13px 24px;
+      border: 2px solid var(--ink);
+      border-radius: 0;
+      padding: 14px 24px;
       cursor: pointer;
-      box-shadow: 0 8px 24px rgba(0, 242, 254, 0.25);
-      transition: all 0.2s ease;
+      box-shadow: none;
+      transition: background 0.12s ease, color 0.12s ease, transform 0.12s ease;
       width: 100%;
       text-align: center;
-      letter-spacing: 0.5px;
+      letter-spacing: 2px;
     }
     .btn:hover {
-      opacity: 0.95;
+      background: var(--paper);
+      color: var(--ink);
       transform: translateY(-1px);
     }
+    .btn:active {
+      transform: translateY(1px);
+    }
     .btn-outline {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: var(--text-dim);
+      background: var(--opt-bg);
+      border: 2px solid var(--ink);
+      color: var(--text);
       font-size: 12px;
-      padding: 7px 14px;
-      border-radius: 8px;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 0;
       cursor: pointer;
+      transition: background 0.12s ease, color 0.12s ease;
     }
     .btn-outline:hover {
-      color: var(--text);
-      border-color: var(--text-dim);
+      color: var(--paper);
+      background: var(--ink);
+      border-color: var(--ink);
     }
 
     /* 结果屏 */
@@ -276,31 +384,34 @@
       margin-bottom: 18px;
     }
     .res-code {
+      font-family: var(--mono);
       font-size: 11px;
-      letter-spacing: 2px;
-      color: var(--accent);
+      letter-spacing: 3px;
+      color: var(--ink);
       font-weight: 800;
       text-transform: uppercase;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
     .res-title {
-      font-size: 25px;
+      font-size: 27px;
       font-weight: 900;
-      color: #ffffff;
-      margin-bottom: 4px;
-      letter-spacing: -0.5px;
+      color: var(--text);
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
     }
     .res-subgenre {
-      font-size: 14px;
-      color: var(--primary);
-      font-weight: 600;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--ink);
+      font-weight: 700;
+      letter-spacing: 0.5px;
     }
 
-    /* 高级 DNA 饼图组件 */
+    /* 高级 DNA 饼图组件（深灰块，保证画布中心文字可读，逻辑与数据配色不动） */
     .dna-card {
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 20px;
+      background: var(--ink);
+      border: 3px solid var(--ink-deep);
+      border-radius: 0;
       padding: 18px 20px;
       margin: 18px 0;
       position: relative;
@@ -310,18 +421,20 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 14px;
+      font-family: var(--mono);
       font-size: 11.5px;
-      color: var(--text-dim);
-      font-weight: 600;
-      letter-spacing: 0.5px;
+      color: #dcdcd8;
+      font-weight: 700;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
     }
     .dna-head-tag {
-      color: var(--primary);
-      background: rgba(0, 242, 254, 0.08);
+      color: var(--paper);
+      background: transparent;
       padding: 2px 8px;
-      border-radius: 4px;
-      border: 1px solid rgba(0, 242, 254, 0.2);
+      border-radius: 0;
+      border: 1.5px solid var(--paper);
+      letter-spacing: 1px;
     }
     .dna-body {
       display: flex;
@@ -338,12 +451,25 @@
     canvas#pieChart {
       width: 140px;
       height: 140px;
+      /* 7. 饼图分片依次绘制：顺时针遮罩揭示，3 片 ×220ms = 0.66s */
+      -webkit-mask-image: conic-gradient(#000 var(--pie-angle, 0deg), transparent 0);
+      mask-image: conic-gradient(#000 var(--pie-angle, 0deg), transparent 0);
+      animation: pieDraw 0.66s linear 0.05s both;
+    }
+    @property --pie-angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+    @keyframes pieDraw {
+      from { --pie-angle: 0deg; }
+      to   { --pie-angle: 360deg; }
     }
     .dna-legends {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 9px;
+      gap: 10px;
     }
     .dna-row {
       display: flex;
@@ -360,62 +486,69 @@
     .dna-label {
       display: flex;
       align-items: center;
-      gap: 6px;
-      color: #e6edf3;
+      gap: 7px;
+      color: #efefec;
     }
     .dna-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
+      width: 8px;
+      height: 8px;
+      border-radius: 0;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      flex-shrink: 0;
     }
     .dna-pct {
       color: #ffffff;
-      font-weight: 700;
+      font-family: var(--mono);
+      font-weight: 800;
     }
     .dna-bar-bg {
       width: 100%;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 4px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.24);
+      border-radius: 0;
       overflow: hidden;
     }
     .dna-bar-fill {
       height: 100%;
-      border-radius: 4px;
+      border-radius: 0;
     }
 
     /* 画像描述 */
     .portrait-desc {
-      background: rgba(255, 255, 255, 0.02);
-      border-left: 3px solid var(--accent);
+      background: var(--paper-2);
+      border: 2px solid var(--ink);
+      border-left: 5px solid var(--ink);
       padding: 13px 15px;
-      border-radius: 0 12px 12px 0;
+      border-radius: 0;
       font-size: 13px;
-      line-height: 1.6;
-      color: #d1d5db;
+      line-height: 1.7;
+      color: #454541;
       text-align: left;
       margin-bottom: 18px;
     }
 
 
     .genre-history {
-      background: rgba(0, 242, 254, 0.04);
-      border: 1px solid rgba(0, 242, 254, 0.14);
-      border-radius: 12px;
+      background: var(--paper-2);
+      border: 2px solid var(--ink);
+      border-radius: 0;
       padding: 12px 14px;
       margin: 0 0 18px;
       text-align: left;
     }
     .genre-history-title {
-      color: var(--primary);
+      color: var(--ink);
+      font-family: var(--mono);
       font-size: 11px;
-      font-weight: 700;
-      margin-bottom: 5px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
     }
     .genre-history p {
-      color: #d1d5db;
+      color: #4a4a46;
       font-size: 12px;
-      line-height: 1.6;
+      line-height: 1.7;
     }
     /* 五维属性 */
     .tags-grid {
@@ -426,19 +559,22 @@
       text-align: left;
     }
     .tag-item {
-      background: rgba(255, 255, 255, 0.025);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 10px;
-      padding: 8px 10px;
+      background: var(--opt-bg);
+      border: 2px solid var(--ink);
+      border-radius: 0;
+      padding: 9px 11px;
     }
     .tag-k {
       color: var(--text-dim);
+      font-family: var(--mono);
       font-size: 10px;
-      margin-bottom: 2px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 3px;
     }
     .tag-v {
       color: var(--text);
-      font-weight: 600;
+      font-weight: 700;
       font-size: 11.5px;
     }
 
@@ -446,16 +582,17 @@
     .companion-section {
       text-align: left;
       margin-bottom: 22px;
-      border-top: 1px dashed rgba(255, 255, 255, 0.08);
-      padding-top: 14px;
+      border-top: 2px solid var(--ink);
+      padding-top: 16px;
     }
     .companion-title {
+      font-family: var(--mono);
       font-size: 11px;
       color: var(--text-dim);
-      margin-bottom: 8px;
-      font-weight: 600;
+      margin-bottom: 10px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1.5px;
     }
     .companion-list {
       display: flex;
@@ -463,21 +600,52 @@
     }
     .companion-chip {
       flex: 1;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 10px;
-      padding: 8px;
+      background: var(--opt-bg);
+      border: 2px solid var(--ink);
+      border-radius: 0;
+      padding: 10px;
       font-size: 11px;
     }
     .comp-rank {
-      color: var(--secondary);
-      font-weight: 700;
+      color: var(--ink);
+      font-family: var(--mono);
+      font-weight: 800;
       font-size: 9.5px;
+      letter-spacing: 1px;
     }
     .comp-name {
-      color: #ffffff;
-      font-weight: 600;
-      margin-top: 2px;
+      color: var(--text);
+      font-weight: 700;
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    /* 8. 图例 / 标签 / 卡片：逐个左移 6px 淡入，间隔 120ms */
+    .dna-row,
+    .tag-item,
+    .companion-chip,
+    .meta-item {
+      animation: fadeLeft 0.4s ease both;
+    }
+    .dna-row:nth-child(1),
+    .tag-item:nth-child(1),
+    .companion-chip:nth-child(1),
+    .meta-item:nth-child(1) { animation-delay: 0s; }
+    .dna-row:nth-child(2),
+    .tag-item:nth-child(2),
+    .companion-chip:nth-child(2),
+    .meta-item:nth-child(2) { animation-delay: 0.12s; }
+    .dna-row:nth-child(3),
+    .tag-item:nth-child(3),
+    .companion-chip:nth-child(3),
+    .meta-item:nth-child(3) { animation-delay: 0.24s; }
+    .tag-item:nth-child(4),
+    .meta-item:nth-child(4) { animation-delay: 0.36s; }
+    .tag-item:nth-child(5) { animation-delay: 0.48s; }
+    .tag-item:nth-child(6) { animation-delay: 0.60s; }
+    @keyframes fadeLeft {
+      from { opacity: 0; transform: translateX(-6px); }
+      to   { opacity: 1; transform: translateX(0); }
     }
 
     @media (max-width: 480px) {
@@ -491,128 +659,6 @@
       .tags-grid {
         grid-template-columns: 1fr;
       }
-    }
-
-    /* ===== 追加：8 组纯 CSS 交互动画（不改 HTML 结构 / class / JS） ===== */
-
-    /* 1. 背景纹理缓慢平移 14s ease-in-out infinite alternate，0 0 -> 6px 6px */
-    @keyframes bgPan {
-      from { background-position: 0 0; }
-      to { background-position: 6px 6px; }
-    }
-
-    /* 2. 主卡片容器入场 */
-    @keyframes containerEnter {
-      from { opacity: 0; transform: scale(0.96) translateY(12px); }
-      to { opacity: 1; transform: scale(1) translateY(0); }
-    }
-
-    /* 3. 当前屏 .active 下直接子元素依次入场 0.45s ease */
-    .screen.active > * {
-      animation: screenChildEnter 0.45s ease both;
-    }
-    .screen.active > *:nth-child(1) { animation-delay: 0.05s; }
-    .screen.active > *:nth-child(2) { animation-delay: 0.12s; }
-    .screen.active > *:nth-child(3) { animation-delay: 0.20s; }
-    .screen.active > *:nth-child(4) { animation-delay: 0.28s; }
-    .screen.active > *:nth-child(n+5) { animation-delay: 0.28s; }
-    @keyframes screenChildEnter {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* 4. 进度条末端白色竖光标，呼吸闪烁 1.2s ease-in-out infinite alternate */
-    .progress-bar::after {
-      content: '';
-      position: absolute;
-      right: 0;
-      top: 50%;
-      width: 2px;
-      height: 12px;
-      transform: translateY(-50%);
-      background: #ffffff;
-      border-radius: 1px;
-      animation: caretBlink 1.2s ease-in-out infinite alternate;
-    }
-    @keyframes caretBlink {
-      from { opacity: 0.3; }
-      to { opacity: 1; }
-    }
-
-    /* 5. 选项按钮 hover：深色遮罩自左滑入 0.32s，文字压在遮罩之上 */
-    .option-btn::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.28);
-      transform: translateX(-100%);
-      transition: transform 0.32s ease;
-      pointer-events: none;
-    }
-    .option-btn:hover::before {
-      transform: translateX(0);
-    }
-    .option-btn > span {
-      position: relative;
-      z-index: 1;
-    }
-
-    /* 6. 选项字母标签 hover 旋转 -7deg */
-    .option-btn:hover .opt-tag {
-      transform: rotate(-7deg);
-    }
-
-    /* 7. 环形图分片顺时针依次绘制：conic-gradient 遮罩 + @property 角度变量；
-          from 0deg 即正上方、顺时针，与 JS 中 currentAngle = -0.5*PI 起始方向一致；
-          3 片共 0.66s（每片 220ms）linear，整体延迟 0.05s */
-    @property --pie-a {
-      syntax: '<angle>';
-      initial-value: 0deg;
-      inherits: false;
-    }
-    canvas#pieChart {
-      --pie-a: 0deg;
-      -webkit-mask-image: conic-gradient(from 0deg, #000 0 var(--pie-a), transparent var(--pie-a) 360deg);
-      mask-image: conic-gradient(from 0deg, #000 0 var(--pie-a), transparent var(--pie-a) 360deg);
-      animation: pieReveal 0.66s linear 0.05s forwards;
-    }
-    @keyframes pieReveal {
-      0% { --pie-a: 0deg; }
-      33.333% { --pie-a: 120deg; }
-      66.667% { --pie-a: 240deg; }
-      100% { --pie-a: 360deg; }
-    }
-
-    /* 8. 结果页图例行 / 标签格 / 卡片：逐个淡入并左移 6px，0.4s ease */
-    #screen-result .dna-row,
-    #screen-result .tag-item,
-    #screen-result .companion-chip {
-      animation: resultItemIn 0.4s ease both;
-    }
-    #screen-result .dna-row:nth-child(1),
-    #screen-result .tag-item:nth-child(1),
-    #screen-result .companion-chip:nth-child(1) { animation-delay: 0s; }
-    #screen-result .dna-row:nth-child(2),
-    #screen-result .tag-item:nth-child(2),
-    #screen-result .companion-chip:nth-child(2) { animation-delay: 0.12s; }
-    #screen-result .dna-row:nth-child(3),
-    #screen-result .tag-item:nth-child(3),
-    #screen-result .companion-chip:nth-child(3) { animation-delay: 0.24s; }
-    #screen-result .dna-row:nth-child(4),
-    #screen-result .tag-item:nth-child(4),
-    #screen-result .companion-chip:nth-child(4) { animation-delay: 0.36s; }
-    #screen-result .dna-row:nth-child(5),
-    #screen-result .tag-item:nth-child(5),
-    #screen-result .companion-chip:nth-child(5) { animation-delay: 0.48s; }
-    #screen-result .dna-row:nth-child(6),
-    #screen-result .tag-item:nth-child(6),
-    #screen-result .companion-chip:nth-child(6) { animation-delay: 0.60s; }
-    #screen-result .dna-row:nth-child(n+7),
-    #screen-result .tag-item:nth-child(n+7),
-    #screen-result .companion-chip:nth-child(n+7) { animation-delay: 0.60s; }
-    @keyframes resultItemIn {
-      from { opacity: 0; transform: translateX(-6px); }
-      to { opacity: 1; transform: translateX(0); }
     }
   </style>
 </head>
@@ -763,9 +809,9 @@ const PROFILES = {
     desc: "追求恰到好处的舒适间距。柔和的模拟和弦与中速四四拍，如同下班后的一杯低度微醺气泡酒，让你在极度放松中卸下防备。",
     history: "约在20世纪80年代中期于美国芝加哥形成，源自早期 House，并吸收爵士、灵魂乐和更深沉的贝斯。",
     pie: [
-      { name: "Deep House", pct: 65, color: "#00f2fe" },
-      { name: "Lo-fi / Chillhop", pct: 20, color: "#4facfe" },
-      { name: "Disco / Funky", pct: 15, color: "#f355da" }
+      { name: "Deep House", pct: 65, color: "#8fb3bd" },
+      { name: "Lo-fi / Chillhop", pct: 20, color: "#82a0bb" },
+      { name: "Disco / Funky", pct: 15, color: "#b08fa6" }
     ]
   },
   S02: {
@@ -774,9 +820,9 @@ const PROFILES = {
     desc: "自带舞池聚光灯。复古磁带的温热质感与抓人的切分贝斯，能瞬间点燃你的身体表达欲，自信、华丽且充满生命力。",
     history: "Disco House 主要在20世纪90年代后期至21世纪初的欧美俱乐部中流行，把 Disco 的采样和 Funk 律动放进 House 的四四拍。",
     pie: [
-      { name: "Disco / Funky", pct: 60, color: "#fbc531" },
-      { name: "Deep House", pct: 25, color: "#00f2fe" },
-      { name: "Afro House", pct: 15, color: "#4cd137" }
+      { name: "Disco / Funky", pct: 60, color: "#c6b384" },
+      { name: "Deep House", pct: 25, color: "#8fb3bd" },
+      { name: "Afro House", pct: 15, color: "#95a985" }
     ]
   },
   S03: {
@@ -785,9 +831,9 @@ const PROFILES = {
     desc: "向往阳光与旷野。多层交叠的木质打击乐，让你在不具侵略性的节拍中找到最本能、最纯粹的起舞方式。",
     history: "Afro House 没有单一诞生地，2000年代后在全球俱乐部中逐渐成形；它通常把 House 的四四拍与非洲鼓乐和人声元素结合。",
     pie: [
-      { name: "Afro House", pct: 60, color: "#4cd137" },
-      { name: "Trip-Hop", pct: 25, color: "#e1b12c" },
-      { name: "Deep House", pct: 15, color: "#00f2fe" }
+      { name: "Afro House", pct: 60, color: "#95a985" },
+      { name: "Trip-Hop", pct: 25, color: "#b8a069" },
+      { name: "Deep House", pct: 15, color: "#8fb3bd" }
     ]
   },
   S04: {
@@ -796,9 +842,9 @@ const PROFILES = {
     desc: "都市冷感与干练的代名词。如精密机床般严丝合缝的紧凑四四拍，不带有多余煽情，是穿梭在水泥森林中最时髦的底色。",
     history: "Tech House 在20世纪90年代中期的英国俱乐部语境中形成，结合 Techno 的简洁律动和 House 的舞池结构。",
     pie: [
-      { name: "Tech House", pct: 65, color: "#718093" },
-      { name: "Minimal Techno", pct: 20, color: "#dcdde1" },
-      { name: "Bass House", pct: 15, color: "#00a8ff" }
+      { name: "Tech House", pct: 65, color: "#8d9298" },
+      { name: "Minimal Techno", pct: 20, color: "#d3d3ce" },
+      { name: "Bass House", pct: 15, color: "#7493b0" }
     ]
   },
   S05: {
@@ -807,9 +853,9 @@ const PROFILES = {
     desc: "浪漫且善于等待。在漫长开阔的铺垫中感受情绪层层累加，如同在深夜高架上驾驶，等待终点前那一抹破晓的微光。",
     history: "Progressive House 约在20世纪90年代初于英国等欧洲舞池发展；Melodic House 是后来更强调旋律与氛围的相关方向。",
     pie: [
-      { name: "Melodic House", pct: 60, color: "#4facfe" },
-      { name: "Prog Trance", pct: 25, color: "#00f2fe" },
-      { name: "Melodic Dubstep", pct: 15, color: "#9c88ff" }
+      { name: "Melodic House", pct: 60, color: "#82a0bb" },
+      { name: "Prog Trance", pct: 25, color: "#8fb3bd" },
+      { name: "Melodic Dubstep", pct: 15, color: "#9b93b6" }
     ]
   },
   S06: {
@@ -818,9 +864,9 @@ const PROFILES = {
     desc: "活力四射，拒绝沉闷。充满金属光泽与橡胶回弹感的跳跃贝斯，每一下都能精准砸中兴奋点，是年轻派对的能量源。",
     history: "Future Bass House 是2010年代电子音乐网络和舞池场景中的混合方向，没有公认的单一发源地，常结合 House 节拍、合成器和重低音。",
     pie: [
-      { name: "Bass House", pct: 60, color: "#9c88ff" },
-      { name: "Tech House", pct: 25, color: "#718093" },
-      { name: "Big Room EDM", pct: 15, color: "#e84118" }
+      { name: "Bass House", pct: 60, color: "#9b93b6" },
+      { name: "Tech House", pct: 25, color: "#8d9298" },
+      { name: "Big Room EDM", pct: 15, color: "#af7b69" }
     ]
   },
   S07: {
@@ -829,9 +875,9 @@ const PROFILES = {
     desc: "天生属于万人主舞台。享受山呼海啸般的倒数与 Drop，在烟火升空的瞬间与全场同频共振，极致直接、极致热烈。",
     history: "Big Room/Festival EDM 在2010年代全球大型音乐节中走红，强调巨大的合成器音色、清晰的高潮和适合万人跳舞的结构。",
     pie: [
-      { name: "Big Room EDM", pct: 65, color: "#e84118" },
-      { name: "Hardstyle", pct: 20, color: "#fbc531" },
-      { name: "Uplifting Trance", pct: 15, color: "#00f2fe" }
+      { name: "Big Room EDM", pct: 65, color: "#af7b69" },
+      { name: "Hardstyle", pct: 20, color: "#c6b384" },
+      { name: "Uplifting Trance", pct: 15, color: "#8fb3bd" }
     ]
   },
   S08: {
@@ -840,9 +886,9 @@ const PROFILES = {
     desc: "深度的秩序掌控者。拒绝廉价煽情，在极度干净、稀疏且精准的循环中建立属于自己的精神避难所，少即是多。",
     history: "Minimal Techno 主要在20世纪90年代的底特律和柏林等场景中发展，强调少量元素、重复律动和细微变化。",
     pie: [
-      { name: "Minimal Techno", pct: 70, color: "#2f3640" },
-      { name: "Dub Techno", pct: 20, color: "#718093" },
-      { name: "IDM / Glitch", pct: 10, color: "#00a8ff" }
+      { name: "Minimal Techno", pct: 70, color: "#6f6f6b" },
+      { name: "Dub Techno", pct: 20, color: "#8d9298" },
+      { name: "IDM / Glitch", pct: 10, color: "#7493b0" }
     ]
   },
   S09: {
@@ -851,9 +897,9 @@ const PROFILES = {
     desc: "内省、敏感且沉静。冰冷潮湿的大混响像冬日窗外的连绵阴雨，带你进入一层又一层无休止的声波下潜。",
     history: "Dub Techno 在20世纪90年代初的柏林场景中形成，Basic Channel 等作品把 Techno 的节拍和 Dub 的回声、混响结合起来。",
     pie: [
-      { name: "Dub Techno", pct: 65, color: "#718093" },
-      { name: "Ambient / Drone", pct: 25, color: "#dcdde1" },
-      { name: "Minimal Techno", pct: 10, color: "#2f3640" }
+      { name: "Dub Techno", pct: 65, color: "#8d9298" },
+      { name: "Ambient / Drone", pct: 25, color: "#d3d3ce" },
+      { name: "Minimal Techno", pct: 10, color: "#6f6f6b" }
     ]
   },
   S10: {
@@ -862,9 +908,9 @@ const PROFILES = {
     desc: "深情的复古未来主义者。冰冷的齿轮运转中藏着底特律工人的浪漫心跳，是科技文明与人类情感最诗意的交汇点。",
     history: "Detroit Techno 在20世纪80年代的美国底特律形成，代表人物包括 Juan Atkins、Derrick May 和 Kevin Saunderson，带有强烈的未来主义色彩。",
     pie: [
-      { name: "Detroit Techno", pct: 65, color: "#e1b12c" },
-      { name: "Synthwave", pct: 20, color: "#f355da" },
-      { name: "Deep House", pct: 15, color: "#00f2fe" }
+      { name: "Detroit Techno", pct: 65, color: "#b8a069" },
+      { name: "Synthwave", pct: 20, color: "#b08fa6" },
+      { name: "Deep House", pct: 15, color: "#8fb3bd" }
     ]
   },
   S11: {
@@ -873,9 +919,9 @@ const PROFILES = {
     desc: "反叛且怪诞不羁。经典的 303 酸性银盒尖叫回旋拉扯，在打破规则的失谐美学中获得极致的颅内快感。",
     history: "Acid House 在20世纪80年代中期的美国芝加哥形成，以 Roland TB-303 的扭曲低音为标志；Acid Techno 则在90年代英国场景中继续发展。",
     pie: [
-      { name: "Acid Techno", pct: 65, color: "#44bd32" },
-      { name: "Industrial Techno", pct: 20, color: "#2f3640" },
-      { name: "Goa Psy", pct: 15, color: "#fbc531" }
+      { name: "Acid Techno", pct: 65, color: "#8aa079" },
+      { name: "Industrial Techno", pct: 20, color: "#6f6f6b" },
+      { name: "Goa Psy", pct: 15, color: "#c6b384" }
     ]
   },
   S12: {
@@ -884,9 +930,9 @@ const PROFILES = {
     desc: "用重压对抗压力。在冰冷坚硬如铁的重工业轰鸣中彻底粉碎杂念，在极端暗黑的包裹下获得内心的绝对清静。",
     history: "Industrial Techno 是 Techno 与工业音乐审美交汇后的方向，主要在20世纪90年代以后于欧洲俱乐部中发展，强调噪音、机械感和压迫感。",
     pie: [
-      { name: "Industrial Techno", pct: 65, color: "#c23616" },
-      { name: "Peak Time", pct: 20, color: "#2f3640" },
-      { name: "Industrial Hardcore", pct: 15, color: "#7f8c8d" }
+      { name: "Industrial Techno", pct: 65, color: "#a06a5c" },
+      { name: "Peak Time", pct: 20, color: "#6f6f6b" },
+      { name: "Industrial Hardcore", pct: 15, color: "#9c9c96" }
     ]
   },
   S13: {
@@ -895,9 +941,9 @@ const PROFILES = {
     desc: "地下派对的绝对信徒。超刚性四四拍如巨石般砸向舞池，没有任何花哨点缀，纯粹用坚实的低频能量掌控全场呼吸。",
     history: "Peak Time/Raw Techno 是当代 Techno 的舞池取向，没有单一发源地；它在2010年代全球俱乐部中普及，重视持续推进和强烈冲击。",
     pie: [
-      { name: "Peak Time", pct: 70, color: "#2f3640" },
-      { name: "Industrial Techno", pct: 20, color: "#c23616" },
-      { name: "Tech House", pct: 10, color: "#718093" }
+      { name: "Peak Time", pct: 70, color: "#6f6f6b" },
+      { name: "Industrial Techno", pct: 20, color: "#a06a5c" },
+      { name: "Tech House", pct: 10, color: "#8d9298" }
     ]
   },
   S14: {
@@ -906,9 +952,9 @@ const PROFILES = {
     desc: "告别旋律的纯粹速度狂人。重型机枪般不知疲倦的超刚性连击，将所有琐碎情绪直接碾碎成最原始的物理冲动。",
     history: "Schranz 在20世纪90年代末的德国 Techno 场景中形成，以高速、失真和密集的工业感鼓点著称。",
     pie: [
-      { name: "Schranz", pct: 70, color: "#e84118" },
-      { name: "Hardcore / Gabber", pct: 20, color: "#8c7ae6" },
-      { name: "Industrial Techno", pct: 10, color: "#2f3640" }
+      { name: "Schranz", pct: 70, color: "#af7b69" },
+      { name: "Hardcore / Gabber", pct: 20, color: "#9189ad" },
+      { name: "Industrial Techno", pct: 10, color: "#6f6f6b" }
     ]
   },
   S15: {
@@ -917,9 +963,9 @@ const PROFILES = {
     desc: "心怀星辰大海的理想主义者。宏大、神圣且充满千禧年色彩的琶音旋律，总能在瞬间唤起内心的英雄主义与感动。",
     history: "Uplifting Trance 在20世纪90年代的欧洲舞池中成形，尤其与德国、荷兰等地的 Trance 场景密切相关，常用明亮旋律和渐进式高潮。",
     pie: [
-      { name: "Uplifting Trance", pct: 65, color: "#00f2fe" },
-      { name: "Vocal Trance", pct: 20, color: "#f355da" },
-      { name: "Big Room EDM", pct: 15, color: "#fbc531" }
+      { name: "Uplifting Trance", pct: 65, color: "#8fb3bd" },
+      { name: "Vocal Trance", pct: 20, color: "#b08fa6" },
+      { name: "Big Room EDM", pct: 15, color: "#c6b384" }
     ]
   },
   S16: {
@@ -928,9 +974,9 @@ const PROFILES = {
     desc: "情感细腻丰沛。在最动人的清澈人声与强劲低音 Drop 碰撞中，痛快释放所有眼泪，完成一次次灵魂自愈。",
     history: "Vocal Trance 在20世纪90年代的欧洲 Trance 场景中流行，把人声旋律与持续推进的电子节拍结合。",
     pie: [
-      { name: "Vocal Trance", pct: 65, color: "#f355da" },
-      { name: "Melodic Dubstep", pct: 20, color: "#9c88ff" },
-      { name: "Progressive House", pct: 15, color: "#4facfe" }
+      { name: "Vocal Trance", pct: 65, color: "#b08fa6" },
+      { name: "Melodic Dubstep", pct: 20, color: "#9b93b6" },
+      { name: "Progressive House", pct: 15, color: "#82a0bb" }
     ]
   },
   S17: {
@@ -939,9 +985,9 @@ const PROFILES = {
     desc: "沉稳内敛的大脑航海家。在长达十几分钟的平缓推进中，思维逐渐脱离引力束缚，进入深度平稳的心流状态。",
     history: "Progressive Trance 在20世纪90年代初的欧洲舞池中发展，通常用较长的铺陈、渐进变化和开阔氛围来推动情绪。",
     pie: [
-      { name: "Prog Trance", pct: 65, color: "#4facfe" },
-      { name: "Prog House", pct: 25, color: "#00f2fe" },
-      { name: "Ambient / Drone", pct: 10, color: "#718093" }
+      { name: "Prog Trance", pct: 65, color: "#82a0bb" },
+      { name: "Prog House", pct: 25, color: "#8fb3bd" },
+      { name: "Ambient / Drone", pct: 10, color: "#8d9298" }
     ]
   },
   S18: {
@@ -950,9 +996,9 @@ const PROFILES = {
     desc: "追求灵魂超脱的秘境使者。东方神秘调式与层层卷起的酸性声浪，能在闭眼的瞬间将你带入古老玄妙的异维空间。",
     history: "Goa Trance 在20世纪80年代的印度果阿形成，受到迷幻摇滚、电子音乐和海滩派对文化影响，后来成为 Psytrance 的重要源头。",
     pie: [
-      { name: "Goa Psy", pct: 65, color: "#e1b12c" },
-      { name: "Full-On Psy", pct: 20, color: "#4cd137" },
-      { name: "Acid Techno", pct: 15, color: "#2f3640" }
+      { name: "Goa Psy", pct: 65, color: "#b8a069" },
+      { name: "Full-On Psy", pct: 20, color: "#95a985" },
+      { name: "Acid Techno", pct: 15, color: "#6f6f6b" }
     ]
   },
   S19: {
@@ -961,9 +1007,9 @@ const PROFILES = {
     desc: "能量无穷无尽的日光派对生物。标志性的滚木低音推进，让你在森林与旷野中彻夜起舞，忘却肉体的疲惫。",
     history: "Full-On Psy 在20世纪90年代末至21世纪初发展，以色列场景对其成熟和传播影响很大；它通常速度较快、旋律明亮、能量持续。",
     pie: [
-      { name: "Full-On Psy", pct: 70, color: "#4cd137" },
-      { name: "Goa Psy", pct: 20, color: "#e1b12c" },
-      { name: "Hardstyle", pct: 10, color: "#fbc531" }
+      { name: "Full-On Psy", pct: 70, color: "#95a985" },
+      { name: "Goa Psy", pct: 20, color: "#b8a069" },
+      { name: "Hardstyle", pct: 10, color: "#c6b384" }
     ]
   },
   S20: {
@@ -972,9 +1018,9 @@ const PROFILES = {
     desc: "突破生理极限的先锋探针。200BPM 以上的高频数码异象，将现实时空感彻底撕裂，体验真正的意识解离。",
     history: "Dark Psy 与 Hitech 是2000年代全球 Psytrance 场景中发展出的方向，没有公认的单一发源地，特点是更暗、更快、更密集。",
     pie: [
-      { name: "Dark Psy / Hitech", pct: 70, color: "#9c88ff" },
-      { name: "Frenchcore", pct: 20, color: "#e84118" },
-      { name: "Schranz", pct: 10, color: "#2f3640" }
+      { name: "Dark Psy / Hitech", pct: 70, color: "#9b93b6" },
+      { name: "Frenchcore", pct: 20, color: "#af7b69" },
+      { name: "Schranz", pct: 10, color: "#6f6f6b" }
     ]
   },
   S21: {
@@ -983,9 +1029,9 @@ const PROFILES = {
     desc: "将温柔与速度完美结合。170BPM 的飞速碎拍下，流淌的却是如红酒般温暖醇厚的灵魂乐采样与爵士钢琴。",
     history: "Liquid Funk 在20世纪90年代末至21世纪初的英国 Drum & Bass 场景中发展，加入灵魂乐、爵士和更柔和的旋律。",
     pie: [
-      { name: "Liquid Funk", pct: 65, color: "#00f2fe" },
-      { name: "Atmo DnB", pct: 20, color: "#718093" },
-      { name: "Deep House", pct: 15, color: "#fbc531" }
+      { name: "Liquid Funk", pct: 65, color: "#8fb3bd" },
+      { name: "Atmo DnB", pct: 20, color: "#8d9298" },
+      { name: "Deep House", pct: 15, color: "#c6b384" }
     ]
   },
   S22: {
@@ -994,9 +1040,9 @@ const PROFILES = {
     desc: "极致的技术流美学崇拜者。重型低音如变异怪兽般不断调制变形，紧绷的数码碎拍是深夜高产的最佳燃料。",
     history: "Neurofunk 在20世纪90年代中期的英国 Drum & Bass 场景中形成，使用复杂鼓点、金属质感音色和不断变化的低音。",
     pie: [
-      { name: "Neurofunk", pct: 70, color: "#00a8ff" },
-      { name: "Techstep", pct: 20, color: "#2f3640" },
-      { name: "IDM / Glitch", pct: 10, color: "#dcdde1" }
+      { name: "Neurofunk", pct: 70, color: "#7493b0" },
+      { name: "Techstep", pct: 20, color: "#6f6f6b" },
+      { name: "IDM / Glitch", pct: 10, color: "#d3d3ce" }
     ]
   },
   S23: {
@@ -1005,9 +1051,9 @@ const PROFILES = {
     desc: "拒绝严肃，纯享快乐。极具弹性的跳跃贝斯音效，像在脑海里装了一个强力弹簧，让人忍不住原地摇摆跳动。",
     history: "Jump Up 是20世纪90年代英国 Jungle/Drum & Bass 场景中的分支，强调夸张弹跳的低音和直接的舞池反应。",
     pie: [
-      { name: "Jump Up", pct: 70, color: "#fbc531" },
-      { name: "Riddim", pct: 20, color: "#9c88ff" },
-      { name: "Brostep", pct: 10, color: "#e84118" }
+      { name: "Jump Up", pct: 70, color: "#c6b384" },
+      { name: "Riddim", pct: 20, color: "#9b93b6" },
+      { name: "Brostep", pct: 10, color: "#af7b69" }
     ]
   },
   S24: {
@@ -1016,9 +1062,9 @@ const PROFILES = {
     desc: "深邃冷酷且硬朗。像一台老式重工业机器在暗夜中高速运转，每一下咬合都带着令人战栗的力量与极客品味。",
     history: "Techstep 与 Darkstep 在20世纪90年代中期的英国 Drum & Bass 场景中发展，常见冷峻音色、紧张鼓点和暗黑氛围。",
     pie: [
-      { name: "Techstep / Darkstep", pct: 65, color: "#2f3640" },
-      { name: "Neurofunk", pct: 25, color: "#00a8ff" },
-      { name: "Industrial Techno", pct: 10, color: "#c23616" }
+      { name: "Techstep / Darkstep", pct: 65, color: "#6f6f6b" },
+      { name: "Neurofunk", pct: 25, color: "#7493b0" },
+      { name: "Industrial Techno", pct: 10, color: "#a06a5c" }
     ]
   },
   S25: {
@@ -1027,9 +1073,9 @@ const PROFILES = {
     desc: "高冷孤独的声景建筑师。将经典鼓点层层解构，融入大理石般高耸冷峻的空间回响中，打造出空灵的未来图景。",
     history: "Atmospheric Drum & Bass 源于1990年代英国 Jungle/DnB 场景；Drumfunk 则在后来的英国及全球实验场景中进一步拆解鼓点。",
     pie: [
-      { name: "Atmo DnB", pct: 65, color: "#718093" },
-      { name: "IDM / Glitch", pct: 20, color: "#00a8ff" },
-      { name: "Ambient / Drone", pct: 15, color: "#dcdde1" }
+      { name: "Atmo DnB", pct: 65, color: "#8d9298" },
+      { name: "IDM / Glitch", pct: 20, color: "#7493b0" },
+      { name: "Ambient / Drone", pct: 15, color: "#d3d3ce" }
     ]
   },
   S26: {
@@ -1038,9 +1084,9 @@ const PROFILES = {
     desc: "低调的次低音鉴赏家。在 140BPM 极度稀疏的留白中，感受 40Hz 超重低音像深海潜流般缓慢推过地板。",
     history: "早期 Dubstep 在21世纪初的英国伦敦南部形成，源自 UK Garage、Dub 和 Drum & Bass，重视留白、次低音和半速律动。",
     pie: [
-      { name: "UK Dubstep (原教旨)", pct: 70, color: "#00a8ff" },
-      { name: "Future Garage", pct: 20, color: "#718093" },
-      { name: "Dub Techno", pct: 10, color: "#2f3640" }
+      { name: "UK Dubstep (原教旨)", pct: 70, color: "#7493b0" },
+      { name: "Future Garage", pct: 20, color: "#8d9298" },
+      { name: "Dub Techno", pct: 10, color: "#6f6f6b" }
     ]
   },
   S27: {
@@ -1049,9 +1095,9 @@ const PROFILES = {
     desc: "毁灭系能量怪兽。如同机械暴龙怒吼般的金属撕裂音效，在每一次 Drop 瞬间带来彻底炸裂的感官爽感。",
     history: "Brostep 在2000年代末至2010年代初的英美网络和大型舞台中走红，是更强调失真、切分和强烈 Drop 的 Dubstep 方向；Tearout 是其更极端的延伸。",
     pie: [
-      { name: "Brostep / Tearout", pct: 70, color: "#e84118" },
-      { name: "Riddim", pct: 20, color: "#9c88ff" },
-      { name: "Raw Hardstyle", pct: 10, color: "#fbc531" }
+      { name: "Brostep / Tearout", pct: 70, color: "#af7b69" },
+      { name: "Riddim", pct: 20, color: "#9b93b6" },
+      { name: "Raw Hardstyle", pct: 10, color: "#c6b384" }
     ]
   },
   S28: {
@@ -1060,9 +1106,9 @@ const PROFILES = {
     desc: "魔性催眠的重复美学。极简到近乎单调的纯粹下潜击打，却拥有让人不由自主大幅度点头的神秘魔力。",
     history: "Riddim 是2010年代 Dubstep 场景中形成的分支，没有单一公认发源地，常用极简循环、重复低音和强烈的节奏重音。",
     pie: [
-      { name: "Riddim", pct: 70, color: "#9c88ff" },
-      { name: "UK Dubstep", pct: 20, color: "#00a8ff" },
-      { name: "Jump Up", pct: 10, color: "#fbc531" }
+      { name: "Riddim", pct: 70, color: "#9b93b6" },
+      { name: "UK Dubstep", pct: 20, color: "#7493b0" },
+      { name: "Jump Up", pct: 10, color: "#c6b384" }
     ]
   },
   S29: {
@@ -1071,9 +1117,9 @@ const PROFILES = {
     desc: "外表平静、内心汹涌。极度唯美忧伤的和弦搭配宽厚深沉的半速重低音，在暮色四合时为你提供最深情的慰藉。",
     history: "Melodic Dubstep 与 Chillstep 在2000年代末至2010年代初的英美网络场景中流行，把 Dubstep 的低音与抒情旋律、氛围声结合。",
     pie: [
-      { name: "Melodic Dubstep", pct: 65, color: "#9c88ff" },
-      { name: "Vocal Trance", pct: 20, color: "#f355da" },
-      { name: "Future Garage", pct: 15, color: "#718093" }
+      { name: "Melodic Dubstep", pct: 65, color: "#9b93b6" },
+      { name: "Vocal Trance", pct: 20, color: "#b08fa6" },
+      { name: "Future Garage", pct: 15, color: "#8d9298" }
     ]
   },
   S30: {
@@ -1082,9 +1128,9 @@ const PROFILES = {
     desc: "阴雨漫步的最佳诠释。被水汽模糊的断续两步拍与幽暗人声切片，是深夜被窝或阴雨窗边最私密的情感避难所。",
     history: "UK Garage 在20世纪90年代的英国形成；Future Garage 是2000年代以后受其影响发展的更宽松、更氛围化方向。",
     pie: [
-      { name: "Future Garage", pct: 65, color: "#718093" },
-      { name: "Liquid Funk", pct: 20, color: "#00f2fe" },
-      { name: "Lo-fi / Chillhop", pct: 15, color: "#e1b12c" }
+      { name: "Future Garage", pct: 65, color: "#8d9298" },
+      { name: "Liquid Funk", pct: 20, color: "#8fb3bd" },
+      { name: "Lo-fi / Chillhop", pct: 15, color: "#b8a069" }
     ]
   },
   S31: {
@@ -1093,9 +1139,9 @@ const PROFILES = {
     desc: "热血澎湃的正能量战士。150BPM 标志性的反拍空心踢鼓与激昂旋律，能瞬间扫除所有内耗，唤醒无限斗志。",
     history: "Hardstyle 在21世纪初的荷兰、意大利等欧洲场景中形成；Euphoric Hardstyle 更强调明亮旋律、合唱感和上扬情绪。",
     pie: [
-      { name: "Euphoric Hardstyle", pct: 65, color: "#fbc531" },
-      { name: "Big Room EDM", pct: 20, color: "#e84118" },
-      { name: "Uplifting Trance", pct: 15, color: "#00f2fe" }
+      { name: "Euphoric Hardstyle", pct: 65, color: "#c6b384" },
+      { name: "Big Room EDM", pct: 20, color: "#af7b69" },
+      { name: "Uplifting Trance", pct: 15, color: "#8fb3bd" }
     ]
   },
   S32: {
@@ -1104,9 +1150,9 @@ const PROFILES = {
     desc: "硬汉力量美学的狂热拥趸。重型轰鸣的失真冲击，是突破训练极限、挑战生理负荷时的绝对精神燃料。",
     history: "Raw Hardstyle 在2010年代欧洲 Hardstyle 场景中发展，保留高速四四拍，同时加强失真低音和硬朗打击。",
     pie: [
-      { name: "Raw Hardstyle", pct: 70, color: "#c23616" },
-      { name: "Hardcore / Gabber", pct: 20, color: "#2f3640" },
-      { name: "Brostep", pct: 10, color: "#e84118" }
+      { name: "Raw Hardstyle", pct: 70, color: "#a06a5c" },
+      { name: "Hardcore / Gabber", pct: 20, color: "#6f6f6b" },
+      { name: "Brostep", pct: 10, color: "#af7b69" }
     ]
   },
   S33: {
@@ -1115,9 +1161,9 @@ const PROFILES = {
     desc: "速度与耐力的终极狂客。190BPM 摧枯拉朽的纯粹失真轰炸，让你在最暴烈的节奏中实现大脑神经彻底重启。",
     history: "Gabber 在20世纪90年代初的荷兰鹿特丹形成，后来成为 Hardcore Techno 的代表方向，以极快速度和强烈失真著称。",
     pie: [
-      { name: "Hardcore / Gabber", pct: 70, color: "#e84118" },
-      { name: "Industrial Hardcore", pct: 20, color: "#c23616" },
-      { name: "Schranz", pct: 10, color: "#2f3640" }
+      { name: "Hardcore / Gabber", pct: 70, color: "#af7b69" },
+      { name: "Industrial Hardcore", pct: 20, color: "#a06a5c" },
+      { name: "Schranz", pct: 10, color: "#6f6f6b" }
     ]
   },
   S34: {
@@ -1126,9 +1172,9 @@ const PROFILES = {
     desc: "拒绝被任何规则定义的野生灵魂。200BPM 带有弹性的极速奔跑，是逃离商业社会、拥抱绝对自由时的无上图腾。",
     history: "Frenchcore 在20世纪90年代的法国及欧洲 Hardcore 场景中发展，通常以高速四四拍、明亮旋律和持续推进为特点。",
     pie: [
-      { name: "Frenchcore", pct: 70, color: "#e84118" },
-      { name: "Dark Psy", pct: 20, color: "#9c88ff" },
-      { name: "Hardcore / Gabber", pct: 10, color: "#c23616" }
+      { name: "Frenchcore", pct: 70, color: "#af7b69" },
+      { name: "Dark Psy", pct: 20, color: "#9b93b6" },
+      { name: "Hardcore / Gabber", pct: 10, color: "#a06a5c" }
     ]
   },
   S35: {
@@ -1137,9 +1183,9 @@ const PROFILES = {
     desc: "毁灭与重建的信徒。将冷酷的工业金属质感推向 190BPM 的极限破坏力，在废墟般的轰鸣中寻求内心的安宁。",
     history: "Industrial Hardcore 在20世纪90年代的欧洲 Hardcore 场景中发展，吸收工业音乐的噪音和失真；EBM 则更早在1980年代的比利时、德国等地形成。",
     pie: [
-      { name: "Industrial Hardcore", pct: 70, color: "#c23616" },
-      { name: "Industrial Techno", pct: 20, color: "#2f3640" },
-      { name: "Hardcore / Gabber", pct: 10, color: "#e84118" }
+      { name: "Industrial Hardcore", pct: 70, color: "#a06a5c" },
+      { name: "Industrial Techno", pct: 20, color: "#6f6f6b" },
+      { name: "Hardcore / Gabber", pct: 10, color: "#af7b69" }
     ]
   },
   S36: {
@@ -1148,9 +1194,9 @@ const PROFILES = {
     desc: "精神世界的极简隐士。不需要任何鼓点与节拍，只在无边无际的空灵声场中让感官彻底归零、重获清明。",
     history: "现代 Ambient 在20世纪70年代的英美音乐场景中成形，Drone 则以长音、持续音和缓慢变化为核心，常用于营造空间感。",
     pie: [
-      { name: "Ambient / Drone", pct: 75, color: "#dcdde1" },
-      { name: "Dub Techno", pct: 15, color: "#718093" },
-      { name: "IDM / Glitch", pct: 10, color: "#00a8ff" }
+      { name: "Ambient / Drone", pct: 75, color: "#d3d3ce" },
+      { name: "Dub Techno", pct: 15, color: "#8d9298" },
+      { name: "IDM / Glitch", pct: 10, color: "#7493b0" }
     ]
   },
   S37: {
@@ -1159,9 +1205,9 @@ const PROFILES = {
     desc: "复古文艺的美学家。慵懒松散的慢板节奏，带有 90 年代烟草与黑胶唱片的微醺质感，让时间在咖啡香气中慢下来。",
     history: "Trip-Hop 在20世纪90年代初的英国布里斯托形成，融合 Hip-Hop 节拍、Dub、Soul 和氛围声；Downtempo 是更宽泛的慢速电子音乐称呼。",
     pie: [
-      { name: "Trip-Hop / Downtempo", pct: 65, color: "#e1b12c" },
-      { name: "Lo-fi / Chillhop", pct: 20, color: "#fbc531" },
-      { name: "Deep House", pct: 15, color: "#00f2fe" }
+      { name: "Trip-Hop / Downtempo", pct: 65, color: "#b8a069" },
+      { name: "Lo-fi / Chillhop", pct: 20, color: "#c6b384" },
+      { name: "Deep House", pct: 15, color: "#8fb3bd" }
     ]
   },
   S38: {
@@ -1170,9 +1216,9 @@ const PROFILES = {
     desc: "用耳朵做高数题的智性脑。无法预测的算法卡顿与精密声响，是深夜搭建未来数字大厦时最合拍的智力游戏。",
     history: "IDM 在20世纪90年代初的英国实验电子音乐场景中受到关注，常用复杂节奏和非传统结构；Braindance 是相关场景常用的称呼之一。",
     pie: [
-      { name: "IDM / Braindance", pct: 70, color: "#00a8ff" },
-      { name: "Neurofunk", pct: 15, color: "#2f3640" },
-      { name: "Ambient / Drone", pct: 15, color: "#718093" }
+      { name: "IDM / Braindance", pct: 70, color: "#7493b0" },
+      { name: "Neurofunk", pct: 15, color: "#6f6f6b" },
+      { name: "Ambient / Drone", pct: 15, color: "#8d9298" }
     ]
   },
   S39: {
@@ -1181,9 +1227,9 @@ const PROFILES = {
     desc: "活在 80 年代科幻电影里的追光者。复古合成器琶音与紫粉霓虹，是夜间驾驶巡航时最纯粹的浪漫执念。",
     history: "Synthwave 在21世纪初的网络音乐场景中兴起，借鉴1980年代合成器流行、电影配乐和电子游戏音乐；Darksynth 是更阴暗的分支。",
     pie: [
-      { name: "Synthwave", pct: 70, color: "#f355da" },
-      { name: "Detroit Techno", pct: 20, color: "#e1b12c" },
-      { name: "Progressive House", pct: 10, color: "#4facfe" }
+      { name: "Synthwave", pct: 70, color: "#b08fa6" },
+      { name: "Detroit Techno", pct: 20, color: "#b8a069" },
+      { name: "Progressive House", pct: 10, color: "#82a0bb" }
     ]
   },
   S40: {
@@ -1192,9 +1238,9 @@ const PROFILES = {
     desc: "温柔内向的日常守护者。带有轻微炒豆杂音的温暖小调与慢节拍，是学习、工作与发呆时最安心的陪伴。",
     history: "Lo-fi/Chillhop 主要在2010年代的网络音乐和串流场景中流行，使用有意保留的噪声、松弛鼓点和爵士或灵魂乐采样。",
     pie: [
-      { name: "Lo-fi / Chillhop", pct: 70, color: "#e1b12c" },
-      { name: "Trip-Hop", pct: 20, color: "#fbc531" },
-      { name: "Deep House", pct: 10, color: "#00f2fe" }
+      { name: "Lo-fi / Chillhop", pct: 70, color: "#b8a069" },
+      { name: "Trip-Hop", pct: 20, color: "#c6b384" },
+      { name: "Deep House", pct: 10, color: "#8fb3bd" }
     ]
   }
 };
@@ -1701,7 +1747,7 @@ function drawAdvancedPie(pieData) {
   ctx.textBaseline = "middle";
   ctx.fillText("DNA", cx, cy - 6);
 
-  ctx.fillStyle = "#00f2fe";
+  ctx.fillStyle = "#8fb3bd";
   ctx.font = "700 8.5px -apple-system, BlinkMacSystemFont, sans-serif";
   ctx.fillText("AUDIO", cx, cy + 7);
 }
